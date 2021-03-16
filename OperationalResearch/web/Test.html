@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Simplex Method</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        var time = 1;
+        $(document).ready(function () {
+            $('.scroll_top').click(function () {
+                $('html,body').animate({scrollTop: '0px'}, 800);
+            });
+            $('.scroll_bottom').click(function () {
+                var h = $(document).height()-$(window).height();
+                $('html,body').animate({scrollTop: h}, 800);
+            });
+        });
+        function createTable(variableNum, constraintNum) {
+            if (variableNum <= 0) {
+                generateMessage('message', 'Please enter a positive variable number!', 'messageBox');
+                return;
+            }
+            if (constraintNum <= 0) {
+                generateMessage('message', 'Please enter a positive variable number!', 'messageBox');
+                return;
+            }
+            $('#close').click();//关闭框框
+        }
+        
+        function check(value) {
+            alert(isNotZeroNumber(value));
+        }
+    </script>
+    <style>
+        body {
+            background: url("image/b1.png") center fixed;
+        }
+        .badge{
+            font-size: medium;
+        }
+    </style>
+</head>
+<body>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">SimplexMethod</li>
+    </ol>
+</nav>
+
+<div class="container-fluid" id="main" style="margin-bottom: 66px">
+    <div style="text-align: center;">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            输入具体参数
+        </button>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">单纯形法</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="messageBox">
+                        <form class="form-inline" style="text-align: center">
+                            <div class="form-group mb-2">
+                                <label for="variableNum" class="sr-only">Variable Number: </label>
+                                <input type="number" class="form-control" id="variableNum" placeholder="请输入变量个数">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="constraintNum" class="sr-only">Constraint Number: </label>
+                                <input type="number" class="form-control" id="constraintNum" placeholder="请输入约束个数">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="createTable($('#variableNum').val(), $('#constraintNum').val())">确定
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-hide">
+        <p class="scroll_top">上去</p>
+        <p class="scroll_bottom">下去</p>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-dark">
+            <tr>
+                <td colspan="3" style="text-align: center">
+                    <span class="badge badge-pill badge-danger">Cj</span>
+                </td>
+                <td>6</td>
+                <td>-2</td>
+                <td>1</td>
+                <td>0</td>
+                <td>1</td>
+                <td rowspan="2" style="text-align: center;vertical-align: middle;">
+                    <span class="badge badge-pill badge-danger">Θ</span>
+                </td>
+            </tr>
+            <tr>
+                <td><span class="badge badge-pill badge-info">Cb</span></td>
+                <td><span class="badge badge-pill badge-info">Xb</span></td>
+                <td><span class="badge badge-pill badge-info">b</span></td>   
+                <td><span class="badge badge-pill badge-success">X1</span></td>
+                <td><span class="badge badge-pill badge-success">X2</span></td>
+                <td><span class="badge badge-pill badge-success">X3</span></td>
+                <td><span class="badge badge-pill badge-success">X4</span></td>
+                <td><span class="badge badge-pill badge-success">X5</span></td>
+            </tr>
+            <tr>
+                <td>0</td>
+                <td><span class="badge badge-pill badge-warning">X4</span></td>
+                <td>2</td>
+                <td>2</td>
+                <td>-1</td>
+                <td>2</td>
+                <td>1</td>
+                <td>0</td>
+                <td style="text-align: center">1</td>
+            </tr>
+            <tr>
+                <td>0</td>
+                <td><span class="badge badge-pill badge-warning">X5</span></td>
+                <td>4</td>
+                <td>1</td>
+                <td>0</td>
+                <td>4</td>
+                <td>0</td>
+                <td>1</td>
+                <td style="text-align: center">4</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: center">
+                    <span class="badge badge-pill badge-primary">C</span>
+                </td>
+                <td>6</td>
+                <td>-2</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div>
+        <div class="alert alert-info" role="alert">
+            约束中为0可不填, <italic>目标函数</italic>不可填0
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark">
+                <tr>
+                    <td rowspan="2" style="text-align: center;vertical-align: middle;">Max = </td>
+                    <td>X1</td>
+                    <td>X2</td>
+                    <td>X3</td>
+                </tr>
+                <tr>
+                    <td><input class="form-control form-control-sm" type="text" style="width: 60px;!important;"></td>
+                    <td><input class="form-control form-control-sm" type="text" style="width: 60px;!important;"></td>
+                    <td><input class="form-control form-control-sm" type="text" style="width: 60px;!important;"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark">
+                <tr>
+                    <td>X1</td>
+                    <td>X2</td>
+                    <td>X3</td>
+                    <td colspan="2" style="text-align: center">b</td>
+                </tr>
+                <tr>
+                    <td><input class="form-control form-control-sm" type="text" style="width: 60px;!important;"></td>
+                    <td><input class="form-control form-control-sm" type="text" style="width: 60px;!important;"></td>
+                    <td><input class="form-control form-control-sm" type="text" style="width: 60px;!important;"></td>
+                    <td><span class="badge badge-pill badge-success"><=</span></td>
+                    <td><input class="form-control form-control-sm" type="text" style="width: 60px;!important;"></td>
+                </tr>
+            </table>
+        </div>
+        <div style="text-align: center;margin-bottom: 5px;">
+            <button type="button" class="btn btn-success" onclick="submitData()">提交</button>
+            <button type="button" class="btn btn-danger" onclick="remove()">删除</button>
+        </div>
+        <div class="table-responsive"></div>//答案
+    </div>
+    
+    <input type="text" onclick="check(this.value)">
+    <form action="#">
+        <a href="mailTo:631999273@qq.com">mail</a>
+    </form>
+    
+    <fieldset>
+        <legend>
+            Health Info
+        </legend>
+        <form action="">
+            Height <input type="text" size="3">
+            Weight <input type="text" size="3">
+        </form>
+    </fieldset>
+    
+    <textarea rows="10" cols="30">
+        The cat is ...................................
+    </textarea>
+    
+    <form action="MAILTO:631999273@qq.com" method="post" enctype="text/plain">
+        <input type="text" size="3">
+        <input type="text" size="3">
+        <input type="text" size="3">
+        <input type="submit">
+        <input type="reset">
+        
+    </form>
+    
+    <form action="#" method="get">
+        a:<input type="radio" name="a" value="a">
+        b:<input type="radio" name="a" value="b">
+        c:<input type="radio" name="a" value="c">
+        <input type="submit">
+        <input type="reset">
+    </form>
+
+
+<!--    <div >-->
+<!--        <div id="demo" class="carousel slide" data-ride="carousel" >-->
+
+<!--            &lt;!&ndash; 指示符 &ndash;&gt;-->
+<!--            <ul class="carousel-indicators">-->
+<!--                <li data-target="#demo" data-slide-to="0" class="active"></li>-->
+<!--                <li data-target="#demo" data-slide-to="1"></li>-->
+<!--                <li data-target="#demo" data-slide-to="2"></li>-->
+<!--            </ul>-->
+
+<!--            &lt;!&ndash; 轮播图片 &ndash;&gt;-->
+<!--            <div class="carousel-inner" style="width: 25%">-->
+<!--                <div class="carousel-item active">-->
+<!--                    <div class="card">-->
+<!--                        <div class="card-body">-->
+<!--                            <h5 class="card-title">指派问题</h5>-->
+<!--                            <p class="card-text" style="text-align: left;text-indent: 2em;">-->
+<!--                                在生活中经常遇到这样的问题，n项任务需要n个人分别完成其中的1项,每个人完成的时间不一样。匈牙利解法是求解指派问题的一种简便的解法，它首先由匈牙利数学家柯尼希提出。匈牙利解法利用了定理：系数矩阵中独立0元素的最多个数等于能覆盖所有0元素的最小直线数。-->
+<!--                            </p>-->
+<!--                            <a href="designateProblem.html" class="btn btn-primary">解题</a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="carousel-item">-->
+<!--                    <div class="card">-->
+<!--                        <div class="card-body">-->
+<!--                            <h5 class="card-title">动态规划</h5>-->
+<!--                            <p class="card-text" style="text-align: left;text-indent: 2em;">-->
+<!--                                动态规划(DP)是运筹学的一个分支，是求解决策过程最优化的过程。20世纪50年代初，美国数学家贝尔曼（R.Bellman）等人在研究多阶段决策过程的优化问题时提出了著名的最优化原理，从而创立了动态规划。动态规划的应用极其广泛,比如背包问题等。-->
+<!--                            </p>-->
+<!--                            <a href="dynamicPlanning.html" class="btn btn-primary">解题</a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="carousel-item">-->
+<!--                    <div class="card">-->
+<!--                        <div class="card-body">-->
+<!--                            <h5 class="card-title">Prim算法</h5>-->
+<!--                            <p class="card-text" style="text-align: left;text-indent: 2em;">-->
+<!--                                普里姆算法（Prim算法），图论中的一种算法，可在加权连通图里搜索最小生成树。意即由此算法搜索到的边子集所构成的树中，不但包括了连通图里的所有顶点，且其所有边的权值之和亦为最小。该算法先后被计算机科学家沃伊捷赫·亚尔尼克，罗伯特·普里姆，艾兹格·迪科斯彻发现。-->
+<!--                            </p>-->
+<!--                            <a href="prim.html" class="btn btn-primary">解题</a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; 左右切换按钮 &ndash;&gt;-->
+<!--            <a class="carousel-control-prev" href="#demo" data-slide="prev">-->
+<!--                <span class="carousel-control-prev-icon"></span>-->
+<!--            </a>-->
+<!--            <a class="carousel-control-next" href="#demo" data-slide="next">-->
+<!--                <span class="carousel-control-next-icon"></span>-->
+<!--            </a>-->
+
+<!--        </div>-->
+<!--    </div>-->
+    
+
+</div>
+<script>
+    function select(which,index) {
+        let $pick = document.getElementById('pick'+index);
+        if ($pick!==null){
+            $pick = $($pick);
+            $pick.removeClass('list-group-item-info');
+            $pick.addClass('list-group-item-action');
+            $pick.removeAttr('id')
+        }
+        let $which = $(which);
+        $which.removeClass('list-group-item-action');
+        $which.addClass('list-group-item-info');
+        $which.attr('id','pick1');
+        $('#ans'+index).val($which.html())
+    }
+</script>
+<div class="container">
+    <div class="card" id="quiz1">
+        <h5 class="card-header">
+            <button type="button" class="btn btn-primary" style="margin-bottom: 5px;">
+                <span class="badge badge-light">1</span> :
+            </button>
+            公式
+            <img src="image/inf_dieRate.jpg"> 的含义是
+        </h5>
+        <div class="card-body" style="text-align: center">
+            <div class="list-group card-text" style="margin-bottom: 10px">
+                <button type="button" class="list-group-item list-group-item-action" onclick="select(this,1)">Cras justo odio</button>
+                <button type="button" class="list-group-item list-group-item-action" onclick="select(this,1)">Dapibus ac facilisis in</button>
+                <button type="button" class="list-group-item list-group-item-action" onclick="select(this,1)">123</button>
+                <button type="button" class="list-group-item list-group-item-action" onclick="select(this,1)">Porta ac consectetur ac</button>
+            </div>
+            <input type="hidden" value="123" id="ans1">
+            <a href="#" class="btn btn-primary" id="select1">选好啦</a>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+123
+
+
+</body>
+</html>

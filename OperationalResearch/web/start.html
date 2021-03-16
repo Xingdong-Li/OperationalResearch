@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <title>运筹学问题</title>
+    <script>
+    </script>
+    <style>
+        html {
+            height: 100%
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: url("image/b1.jpg") center fixed;
+        }
+
+        nav {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: 0;
+        }
+
+        .container {
+            flex-grow: 1;
+            flex-shrink: 0;
+            flex-basis: auto;
+            margin-bottom: 30px;
+        }
+
+        #footer {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: auto;
+            text-align: center
+        }
+    </style>
+</head>
+<body>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item" aria-current="page"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Start</li>
+    </ol>
+</nav>
+<div class="container">
+    <div class="row" style="text-align: center">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">单纯形法(Max)</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        单纯形法是求解线性规划问题最常用、最有效的算法之一。最早由 George Dantzig于1947年提出。单纯形法的基本思路是：先找出可行域的一个顶点，据一定规则判断其是否最优；若否，则转换到与之相邻的另一顶点，并使目标函数值更优；如此下去，直到找到某最优解。
+                    </p>
+                    <a href="simplexMethod.html" class="btn btn-primary">练习</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">指派问题</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        在生活中经常遇到这样的问题，n项任务需要n个人分别完成其中的1项,每个人完成的时间不一样。匈牙利解法是求解指派问题的一种简便的解法，它首先由匈牙利数学家柯尼希提出。匈牙利解法利用了定理：系数矩阵中独立0元素的最多个数等于能覆盖所有0元素的最小直线数。
+                    </p>
+                    <a href="designateProblem.html" class="btn btn-primary">练习</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">动态规划</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        动态规划(DP)是运筹学的一个分支，是求解决策过程最优化的过程。20世纪50年代初，美国数学家贝尔曼(R.Bellman)等人在研究多阶段决策过程的优化问题时提出了著名的最优化原理，从而创立了动态规划这一思想。动态规划的应用极其广泛,比如著名的0-1背包问题等。
+                    </p>
+                    <a href="dynamicPlanning.html" class="btn btn-primary">练习</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Prim算法</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        普里姆算法(Prim算法)，图论的一种算法，可在加权连通图里搜索最小生成树(MST)。由此算法搜索到的边子集所构成的树不但包括了连通图里的所有顶点，且其所有边的权值之和最小。此经典算法先后被计算机科学家沃伊捷赫·亚尔尼克，罗伯特·普里姆，艾兹格·迪科斯彻发现。
+                    </p>
+                    <a href="prim.html" class="btn btn-primary">练习</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Dijkstra算法</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        Dijkstra算法是由荷兰计算机科学家Dijkstra于1959年提出的。是从一个顶点到其余各顶点的最短路径算法，解决的是有权图中最短路径问题。Dijkstra算法主要特点是采用贪心算法的策略，每次遍历到始点距离最近且未访问过的顶点的邻接节点，直到扩展到终点为止。
+                    </p>
+                    <a href="dijkstra.html" class="btn btn-primary" >练习</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Floyd算法</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        Floyd算法是一种利用动态规划的思想寻找给定的加权图中最短路径的算法。该算法名称以创始人之一的1978年图灵奖获得者斯坦福大学计算机科学系教授罗伯特·弗洛伊德命名。弗洛伊德算法是一种在具有正或负边缘权重(但没有负周期)的加权图中找到最短路径的算法。
+                    </p>
+                    <a href="floyd.html" class="btn btn-primary">练习</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">生灭服务系统</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        随机服务系统理论简称“排队论”。研究服务系统在随机需求和随机服务过程中排队现象的一种数学理论。运筹学中以概率论随机过程为基础的一门重要分支。排队规则分损失制、等待制和混合制。其中等待制又分先到服务(FIFO),后到先服务(LIFO),按随机次序服务(SIRO)等。
+                    </p>
+                    <a href="queue.html" class="btn btn-primary">练习</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-6 col-xl-3" style="margin-bottom: 25px;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">库存理论</h5>
+                    <p class="card-text" style="text-align: left;text-indent: 2em;">
+                        早在1915年，哈李斯针对银行货币的储备问题进行了详细的研究，建立了一个确定性的存贮费用模型，并求得了最佳批量公式。毛恩在1959年写了《存贮理论》。此后存贮论成了运筹学中的一个独立的分支，有关学者相继对随机或非平稳需求的存贮模型进行了广泛深入的研究。
+                    </p>
+                    <a href="storage.html" class="btn btn-primary">练习</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            Quote
+        </div>
+        <div class="card-body" style="background-color: #fdf8e0">
+            <blockquote class="blockquote mb-0">
+                <p>Yesterday is history, tomorrow is a mystery, but today is a gift. That’s why it is called the present.</p>
+                <footer class="blockquote-footer">Idiom I like in <cite title="Source Title">my memo</cite></footer>
+            </blockquote>
+        </div>
+    </div>
+</div>
+
+</body>
+<footer style="background-color: #424040;" id="footer">
+    <div class="copy-right" style="width: 100%;color: #d9d9d9">
+        Copyright &copy 2020 还没想好叫啥名字(≥◇≤). All rights reserved
+        <a style="color: #7A7A7D;" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank"> <img
+                style="width:18px;vertical-align: text-bottom;margin-left: 8px;" src="image/index.png"
+                alt=""> 京ICP备2020040249号 </a>
+    </div>
+</footer>
+</html>

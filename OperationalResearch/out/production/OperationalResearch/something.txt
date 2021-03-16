@@ -1,0 +1,1 @@
+System.out.println(points[i]+"经过"+points[k]+"到达"+points[j]+", 距离由"+distances[i][j]+"变为"+distances[i][k] +"+"+ distances[k][j]+"="+(distances[i][k] + distances[k][j]));

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Simplex Method</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        var time = 1;
+        $(document).ready(function () {
+            $('.scroll_top').click(function () {
+                $('html,body').animate({scrollTop: '0px'}, 800);
+            });
+            $('.scroll_bottom').click(function () {
+                var h = $(document).height() - $(window).height();
+                $('html,body').animate({scrollTop: h}, 800);
+            });
+        });
+
+        function createTable(variableNum, constraintNum) {
+            if (variableNum <= 0) {
+                generateMessage('message', 'Please enter a positive variable number!', 'messageBox');
+                return;
+            }
+            if (constraintNum <= 0) {
+                generateMessage('message', 'Please enter a positive variable number!', 'messageBox');
+                return;
+            }
+            $('#close').click();//关闭框框
+            var inputTable = '' +
+                '<div id="table' + time + '" style="margin-bottom: 20px;">\n' +
+                '        <div class="alert alert-info" role="alert">\n' +
+                '            约束为0可不填, 目标函数系数必须不为0\n' +
+                '        </div>\n' +
+                '        <div class="table-responsive" id="checkNums' + time + '">\n' +//检验数的表
+                '            <table class="table table-dark table-hover">';
+            inputTable += '<tr class="bg-dark">\n' +
+                '                    <td rowspan="2" style="text-align: center;vertical-align: middle;">' +
+                '<span class="badge badge-pill badge-success" style="font-size: large">Max = </span></td>';
+            for (var i = 1; i <= variableNum; i++) {
+                inputTable += '<td>X' + i + '</td>\n';
+            }
+            inputTable += '</tr>\n' +
+                '          <tr>';
+            for (i = 1; i <= variableNum; i++) {
+                inputTable += '<td><input class="form-control form-control-sm Cb' + time + '" type="text" style="width: 60px;!important;"></td>';
+            }
+            inputTable += '</tr>\n' +
+                '            </table>\n' +
+                '        </div>\n';
+            //约束的表
+            inputTable += '<div class="table-responsive" id="values' + time + '">\n' +
+                '            <table class="table table-dark table-hover">\n' +
+                '                <tr class="bg-dark">';
+            for (i = 1; i <= variableNum; i++) {
+                inputTable += '<td>X' + i + '</td>\n';
+            }
+            inputTable += '<td colspan="2" style="text-align: center">b</td>' + '</tr>\n';
+            for (i = 1; i <= constraintNum; i++) {
+                inputTable += '<tr>';
+                for (var j = 1; j <= variableNum; j++) {
+                    inputTable += '<td><input class="form-control form-control-sm value' + time + '" type="text" style="width: 60px;!important;"></td>';
+                }
+                inputTable += '<td><span class="badge badge-pill badge-success" style="font-size: medium"><=</span></td>\n' +
+                    '                    <td><input class="form-control form-control-sm b' + time + '" type="text" style="width: 60px;!important;"></td>' +
+                    '</tr>'
+            }
+            inputTable += '</table>\n' +
+                '        </div>\n';
+            inputTable +=
+                '        <div style="text-align: center;margin-bottom: 5px;">\n' +
+                '            <button type="button" class="btn btn-success" onclick="submitData(\'table' + time + '\',' + variableNum + ')">提交</button>\n' +
+                '            <button type="button" class="btn btn-danger" onclick="remove(\'table' + time + '\')">删除</button>\n' +
+                '        </div>\n';
+            inputTable += '</div>';
+            time++;
+            $("#main").append(inputTable);
+            $('.scroll_bottom').click();
+        }
+
+        function submitData(id, variableNum) {
+            var intId = id.slice(5);
+            var valueId = 'value' + intId;
+            var bId = 'b' + intId;
+            var Cb = 'Cb' + intId;
+            var CEnters = document.getElementsByClassName(Cb);
+            var Cbs = [];
+            for (i = 0; i < CEnters.length; i++) {
+                value = CEnters[i].value;
+                if (isNotZeroNumber(value)) {
+                    value = parseInt(value);
+                } else {
+                    generateMessage('messageC' + intId, "Please enter check number, which must is not 0!", 'checkNums' + intId);
+                    return;
+                }
+                Cbs[i] = value;
+            }
+            $('#messageC' + intId).remove();
+            var valueEnters = document.getElementsByClassName(valueId);
+            var values = [];
+            for (var i = 0; i < valueEnters.length; i++) {
+                var value = valueEnters[i].value;
+                if (value === '') {
+                    value = 0;
+                } else if (isNumber(value)) {
+                    value = parseInt(value);
+                } else {
+                    generateMessage('messageV' + intId, "Please enter valid variable numbers!", 'values' + intId);
+                    return;
+                }
+                values[i] = value;
+            }
+            var bEnters = document.getElementsByClassName(bId);
+            var bs = [];
+            for (i = 0; i < bEnters.length; i++) {
+                value = bEnters[i].value;
+                if (value === '') {
+                    value = 0;
+                } else if (isNumber(value)) {
+                    value = parseInt(value);
+                } else {
+                    generateMessage('messageV' + intId, "Please enter valid constraint values!", 'values' + intId);
+                    return;
+                }
+                bs[i] = value;
+            }
+            $('#messageV' + intId).remove();
+            var param = {};
+            param.values = JSON.stringify(values);
+            param.checkNums = JSON.stringify(Cbs);
+            param.bs = JSON.stringify(bs);
+            param.variableNum = variableNum;
+            $.ajax({
+                url: "/OperationalResearch/simplexMethodServlet",
+                type: "POST",
+                data: param,
+                success: function (data) {
+                    $('#answerOf' + id).remove();
+                    var constraintNum = data.constraintNum;
+                    var newVallength = variableNum + constraintNum;
+                    var finalObj;
+                    var tables = '<div id="answerOf' + id + '">';
+                    for (var i = 0; i < data.matrices.length; i++) {
+                        var matrix = data.matrices[i];
+                        // ---表头部分，与i无关
+                        var table = '<button type="button" class="btn btn-primary" style="margin-bottom: 5px;">\n' +
+                            '  Step <span class="badge badge-light">' + (i + 1) + '</span>\n' +
+                            '</button>\n';
+                        table += '<div class="table-responsive">\n' +
+                            '        <table class="table table-hover" style="background-color: snow">\n' +
+                            '            <tr class="bg-light">\n' +
+                            '                <td colspan="3" style="text-align: center">\n' +
+                            '                    <span class="badge badge-pill badge-danger">Cj</span>\n' +
+                            '                </td>';
+                        for (var j = 0; j < newVallength; j++) {
+                            var fraction = data.checks[j + 1];
+                            var value = fraction.denominator === 1 ? fraction.numerator : fraction.numerator + '/' + fraction.denominator;
+                            table += '<td>' + value + '</td>';
+                        }
+                        table += '<td rowspan="2" style="text-align: center;vertical-align: middle;">\n' +
+                            '                    <span class="badge badge-pill badge-danger">Θ</span>\n' +
+                            '                </td>';
+                        table += '</tr>' +
+                            '<tr class="bg-light">';
+                        table += '<td><span class="badge badge-pill badge-info">Cb</span></td>\n' +
+                            '                <td><span class="badge badge-pill badge-info">Xb</span></td>\n' +
+                            '                <td><span class="badge badge-pill badge-info">b</span></td> ';
+                        for (j = 0; j < newVallength; j++) {
+                            table += '<td><span class="badge badge-pill badge-success">X' + (j + 1) + '</span></td>';
+                        }
+                        table += '</tr>';
+                        // 数据部分
+
+                        for (j = 0; j < constraintNum; j++) {
+                            var out = data.xbs[i * constraintNum + j];
+
+                            var row = data.indexes[i * 2 + 1];
+                            var column = data.indexes[i * 2];
+                            fraction = data.checks[out];
+                            var outCheck = fraction.denominator === 1 ? fraction.numerator : fraction.numerator + '/' + fraction.denominator;
+                            
+                            table += '<tr>';
+                            table += '<td>' + outCheck + '</td>';//检验数
+                            table += '<td><span class="badge badge-pill badge-warning">X' + out + '</span></td>';
+                            for (var k = 0; k < newVallength + 1; k++) {
+                                fraction = matrix.data[j][k];
+                                value = fraction.denominator === 1 ? fraction.numerator : fraction.numerator + '/' + fraction.denominator;
+                                if (j === row && k === column) {
+                                    table += '<td><span class="badge badge-pill badge-dark">' + value + '</span></td>';
+                                } else table += '<td>' + value + '</td>';
+                            }
+                            if (i !== data.matrices.length - 1) {//最后无theta
+                                fraction = data.thetas[i * constraintNum + j];
+                                value = fraction.denominator === 1 ? fraction.numerator : fraction.numerator + '/' + fraction.denominator;
+                                value = value === 0 ? '-' : value;
+                                table += '<td style="text-align: center">' + value + '</td>'
+                            }
+                            table += '</tr>';
+                        }
+                        table += '<tr>\n' +
+                            '                <td colspan="3" style="text-align: center">\n' +
+                            '                    <span class="badge badge-pill badge-primary">C</span>\n' +
+                            '                </td>';
+                        for (j = 0; j < data.tempChecks[i].length; j++) {
+                            fraction = data.tempChecks[i][j];
+                            value = fraction.denominator === 1 ? fraction.numerator : fraction.numerator + '/' + fraction.denominator;
+                            table += '<td>' + value + '</td>';
+                        }
+                        table += '</tr>\n' +
+                            '        </table>\n' +
+                            '    </div>';
+                        var obj = data.objs[i];
+                        value = obj.denominator === 1 ? obj.numerator : obj.numerator + '/' + obj.denominator;
+                        finalObj = value;
+                        table += '<h4>The obj for now is <span class="badge badge-info">' + value + '</span></h4>';
+                        tables += table;
+                    }
+                    var result = data.resultType === -1 ? 'The only best solution' : data.resultType === -2 ? 'Infinite best solution' : 'Infinite boundary solution';
+                    tables += '<div class="alert alert-success" role="alert">\n' +
+                        '  Successfully get the answer, which is ' + finalObj + '!\n' +
+                        result +
+                        '</div>';
+                    tables+='<hr style="background-color: #fff;border-top: 2px dashed #8c8b8b;">';
+                    tables += '</div>';
+                    $('#' + id).append(tables);
+                },
+                error: function () {
+                    alert("error!");
+                },
+                dataType: 'json'
+            })
+        }
+
+        function remove(tableId) {
+            $('#' + tableId).remove();
+        }
+    </script>
+    <style>
+        html {
+            height: 100%
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: url("image/b1.jpg") center fixed;
+        }
+
+        nav {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: 0;
+        }
+
+        .container-fluid {
+            flex-grow: 1;
+            flex-shrink: 0;
+            flex-basis: auto;
+        }
+
+        footer {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: auto;
+            text-align: center
+        }
+    </style>
+</head>
+<body>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item" aria-current="page"><a href="start.html">Start</a></li>
+        <li class="breadcrumb-item active" aria-current="page">SimplexMethod</li>
+    </ol>
+</nav>
+
+<div class="container-fluid" id="main">
+    <div style="text-align: center;">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            输入具体参数
+        </button>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">单纯形法</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="messageBox">
+                        <form class="form-inline" style="text-align: center">
+                            <div class="form-group mb-2">
+                                <label for="variableNum" class="sr-only">Variable Number: </label>
+                                <input type="number" class="form-control" id="variableNum" placeholder="请输入变量个数">
+                            </div>
+                            <div class="form-group mb-2">
+                                <label for="constraintNum" class="sr-only">Constraint Number: </label>
+                                <input type="number" class="form-control" id="constraintNum" placeholder="请输入约束个数">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close">关闭</button>
+                        <button type="button" class="btn btn-primary"
+                                onclick="createTable($('#variableNum').val(), $('#constraintNum').val())">确定
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-hide">
+        <p class="scroll_top">上去</p>
+        <p class="scroll_bottom">下去</p>
+    </div>
+    <div>
+
+    </div>
+</div>
+</body>
+<footer style="background-color: #424040;">
+    <div class="copy-right" style="width: 100%;color: #d9d9d9">
+        Copyright &copy 2020 还没想好叫啥名字(≥◇≤). All rights reserved
+        <a style="color: #7A7A7D;" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank"> <img
+                style="width:18px;vertical-align: text-bottom;margin-left: 8px;" src="image/index.png"
+                alt=""> 京ICP备2020040249号 </a>
+    </div>
+</footer>
+</html>

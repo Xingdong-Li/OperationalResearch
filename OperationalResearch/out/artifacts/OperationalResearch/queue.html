@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>生灭服务系统</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        var time = 1;
+        var problems;
+        var answers;
+        var choices;
+        $(document).ready(function () {
+            $('.scroll_top').click(function () {
+                $('html,body').animate({scrollTop: '0px'}, 800);
+            });
+            $('.scroll_bottom').click(function () {
+                var h = $(document).height()-$(window).height();
+                $('html,body').animate({scrollTop: h}, 800);
+            });
+        });
+
+        function select(which,index,order) {
+            if ($('#status'+index).val()==0){
+                let $pick = document.getElementById('pick'+index);
+                if ($pick!==null){
+                    $pick = $($pick);
+                    $pick.removeClass('list-group-item-info');
+                    $pick.addClass('list-group-item-action');
+                    $pick.removeAttr('id');
+                }
+                let $which = $(which);
+                $which.removeClass('list-group-item-action');
+                $which.addClass('list-group-item-info');
+                $which.attr('id','pick'+index);
+                $('#ans'+index).val(order);
+            }
+        }
+
+        function createQuiz(n) {
+            if (n <= 0) {
+                generateMessage('message', 'Please enter a positive number!', 'messageBox');
+                return;
+            }
+            let status = false;
+            $.ajax({
+                url: "/OperationalResearch/queueServlet",
+                type: "POST",
+                data: {number:n},
+                success: function (data) {
+                    if (data.status){
+                        status=true;
+                        problems=data.problems;
+                        answers=data.answers;
+                        choices=data.choices;
+                        $('#close').click();//关闭框框
+                        $('#init').remove();
+                        let button = '<div style="text-align: center;"><a href="start.html" class="btn btn-primary">返回</a></div>';
+                        $("#main").prepend(button);
+                        showProblems();
+                        $('.scroll_bottom').click();
+                    }else generateMessage('message', 'The number of total questions is '+data.max, 'messageBox');
+                },
+                dataType:"json"
+            });
+        }
+
+        function shuffle(arr) {
+            const len = arr.length;
+            for (let i = 0; i < len - 1; i++) {
+                const index = Math.floor(Math.random()*len);
+                const temp = arr[i];
+                arr[i] = arr[index];
+                arr[index] = temp;
+            }
+            return arr;
+        }
+        
+        function checkAns(index) {
+            $('#message'+index).remove();
+            var ans = $('#ans'+index).val();
+            var correct = $('#correct'+index).val();
+            if (ans===''){
+                generateMessage('message'+index,'You do not select an answer!','quiz'+index);
+                return false;
+            }
+            var select = document.getElementsByClassName('select'+index);
+            $(select[ans]).removeClass('list-group-item-info');
+            if (ans!==correct) {
+                $(select[ans]).addClass('list-group-item-danger');
+                generateMessage('message' + index, 'You just made a slight mistake, which is ok!', 'quiz' + index);
+            } else {
+                generateMessage('message' + index, 'You are so brilliant!', 'quiz' + index);
+            }
+            $(select[correct]).addClass('list-group-item-success');
+            $('#status'+index).val(1);
+            return true;
+        }
+        
+        function showProblems() {
+            let quizs = '';
+            for (let i=0;i<problems.length;i++){
+                let availableChoice=[];
+                let num=0;
+                availableChoice[num++]=answers[i];
+                while (num!==4){
+                    var random = Math.ceil(Math.random()*choices.length)-1;
+                    let temp=choices[random];
+                    if (!availableChoice.includes(temp)){
+                        availableChoice[num++]=temp;
+                    }
+                }
+                shuffle(availableChoice);
+                let correctIndex=0;
+                for (let j=0;j<availableChoice.length;j++){
+                    if (availableChoice[j]===answers[i]){
+                        correctIndex=j;
+                        break;
+                    }
+                }
+                quizs+=
+                    '<div class="card" id="quiz'+time+'" style="margin-bottom: 10px">\n' +
+                    '        <h5 class="card-header">\n' +
+                    '            <button type="button" class="btn btn-primary" style="margin-bottom: 5px;">\n' +
+                    '                <span class="badge badge-light">'+(i+1)+'</span> :\n' +
+                    '            </button>\n' +
+                    'Q: <img src="image/system/'+problems[i]+'" width="160px;"> 的含义是\n' +
+                    '        </h5>\n' +
+                    '        <div class="card-body" style="text-align: center">\n' +
+                    '            <div class="list-group card-text" style="margin-bottom: 10px">\n' +
+                    '                <button type="button" class="list-group-item list-group-item-action select'+time+'" onclick="select(this,'+time+',0)">'+availableChoice[0]+'</button>\n' +
+                    '                <button type="button" class="list-group-item list-group-item-action select'+time+'" onclick="select(this,'+time+',1)">'+availableChoice[1]+'</button>\n' +
+                    '                <button type="button" class="list-group-item list-group-item-action select'+time+'" onclick="select(this,'+time+',2)">'+availableChoice[2]+'</button>\n' +
+                    '                <button type="button" class="list-group-item list-group-item-action select'+time+'" onclick="select(this,'+time+',3)">'+availableChoice[3]+'</button>\n' +
+                    '            </div>\n' +
+                    '            <input type="hidden" id="ans'+time+'">\n' +
+                    '            <input type="hidden" id="correct'+time+'" value="'+correctIndex+'">\n' +
+                    '            <input type="hidden" id="status'+time+'" value="0">\n' +
+                    '            <a href="javascript:void(0)" class="btn btn-primary" onclick="if (checkAns('+time+')) {$(this).remove();}">选好啦</a>\n' +
+                    '        </div>\n' +
+                    '</div>';
+                time++;
+            }
+            $("#main").append(quizs);
+        }
+    </script>
+    <style>
+        html {
+            height: 100%
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: url("image/b1.jpg") center fixed;
+        }
+
+        nav {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: 0;
+        }
+
+        .container {
+            flex-grow: 1;
+            flex-shrink: 0;
+            flex-basis: auto;
+        }
+
+        footer {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: auto;
+            text-align: center
+        }
+    </style>
+</head>
+<body>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item" aria-current="page"><a href="start.html">Start</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Service system</li>
+    </ol>
+</nav>
+<div class="container" id="main">
+    <div style="text-align: center;">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="init">
+            输入题目数量
+        </button>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Service system</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="messageBox">
+                        <form class="form-group" style="text-align: center">
+                            <div class="form-group mb-2">
+                                <label for="number" class="sr-only">Number: </label>
+                                <input type="number" class="form-control" id="number" placeholder="请输入题目数">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="createQuiz($('#number').val())">确定
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-hide">
+        <p class="scroll_top">上去</p>
+        <p class="scroll_bottom">下去</p>
+    </div>
+</div>
+</body>
+<footer style="background-color: #424040;">
+    <div class="copy-right" style="width: 100%;color: #d9d9d9">
+        Copyright &copy 2020 还没想好叫啥名字(≥◇≤). All rights reserved
+        <a style="color: #7A7A7D;" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank"> <img
+                style="width:18px;vertical-align: text-bottom;margin-left: 8px;" src="image/index.png"
+                alt=""> 京ICP备2020040249号 </a>
+    </div>
+</footer>
+</html>

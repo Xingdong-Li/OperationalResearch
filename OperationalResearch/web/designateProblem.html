@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Designate Problem</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        var time = 1;
+        $(document).ready(function () {
+            $('.scroll_top').click(function () {
+                $('html,body').animate({scrollTop: '0px'}, 800);
+            });
+            $('.scroll_bottom').click(function () {
+                var h = $(document).height()-$(window).height();
+                $('html,body').animate({scrollTop: h}, 800);
+            });
+        });
+        
+        function remove(tableId) {
+            $('#'+tableId).remove();
+            $('#answerOf'+tableId).remove();
+        }
+
+        function createTable(n) {
+            if (n <= 0) {
+                generateMessage('message', 'Please enter a positive number!', 'messageBox');
+                return;
+            }
+            if (n >= 100) {
+                generateMessage('message', '不会吧不会吧? '+n+'? Seriously?', 'messageBox');
+                return;
+            }
+            $('#close').click();//关闭框框
+            var table = '<div id="table' + time + '">'+
+                '<div class="table-responsive" style="margin-top: 10px;" >\n' +
+                '            <table class="table table-dark table-hover">\n' +
+                '                <thead>\n' +
+                '                <tr>\n';
+            table += '<th scope="col">#</th>\n';
+            for (var i = 1; i <= n; i++) {
+                table += '<th scope="col">任务' + i + '</th>\n';
+            }
+            table += '</tr>\n' +
+                '                </thead>\n' +
+                '                <tbody>\n';
+            for (i = 1; i <= n; i++) {
+                table += '<tr>\n' +
+                    '                    <th scope="row">工人' + i + '</th>\n';
+                for (var j = 1; j <= n; j++) {
+                    table += '<td><input class="form-control form-control-sm value' + time + '" type="text" style="width: 60px;!important;"></td>\n';
+                }
+                table += '</tr>\n';
+            }
+            table += '</tbody>\n' +
+                '            </table>\n' +
+                '           </div>\n' +
+                '            <div style="text-align: center;margin-bottom: 5px;">' +
+                '               <button type="button" class="btn btn-success" onclick="submitData(\'table' + time + '\')">提交</button>\n' +
+                '               <button type="button" class="btn btn-info" onclick="random(\'table' + time + '\',' + n + ')">随机</button>\n' +
+                '               <button type="button" class="btn btn-danger" onclick="remove(\'table' + time + '\')">删除</button>\n' +
+                '            </div>' +
+                '        </div>\n';
+            time++;
+            $("#main").append(table);
+            $('.scroll_bottom').click();
+        }
+
+        function random(id,n) {
+            var intId = id.slice(5);
+            var valueId = 'value' + intId;
+            var enters = document.getElementsByClassName(valueId);
+            for (var i = 0; i < enters.length; i++) {
+                enters[i].value=Math.ceil(Math.random()*n);
+            }
+        }
+
+        function submitData(id) {
+            var intId = id.slice(5);
+            var valueId = 'value' + intId;
+            var enters = document.getElementsByClassName(valueId);
+            var values = [];
+            for (var i = 0; i < enters.length; i++) {
+                var value = enters[i].value;
+                if (value === '') {
+                    value = 0;
+                } else if (isNotNegaNumber(value)) {
+                    value = parseInt(value);
+                } else {
+                    generateMessage('tableMessage'+intId, "Please enter numbers, which must >=0!", id);
+                    return;
+                }
+                values[i] = value;
+            }
+            $('#tableMessage' + intId).remove();
+            var param = {};
+            param.list = JSON.stringify(values);
+            $.ajax({
+                url: "/OperationalResearch/designateProblemServlet",
+                type: "POST",
+                data: param,
+                success: function (data) {
+                    $('#answerOf' + id).remove();
+                    var text = '<div id="answerOf' + id + '">\n';
+                    if (data.status) {
+                        text += '   <div class="alert alert-success" role="alert">\n' +
+                            '  <h4 class="alert-heading">Well done!</h4>\n' +
+                            '  <p>Successfully get the answer, which is <strong>' + data.answer + '</strong>!</p>\n' +
+                            '  <hr>\n' +
+                            '  <p class="mb-0">Each step is showed as follow: <span class="badge badge-pill badge-success">( )</span>' +
+                            '  <span class="badge badge-pill badge-danger">×</span>' +
+                            '</p>\n' +
+                            '</div>\n';
+                        text+='<div>\n'
+                        var tables = '';
+                        var dataNum = data.dataList.length;
+                        var length = data.dataList[0].length;
+                        for (var i = 0; i < dataNum; i++) {//最后一个是答案，前n-1是过程
+                            var table = '<button type="button" class="btn btn-primary">\n' +
+                                '  Step <span class="badge badge-light">' + (i + 1) + '</span>\n' +
+                                '</button>\n';
+                            if (i !== dataNum - 1) {
+                                table += '<h3>打勾行是 <span class="badge badge-success">\n' +
+                                    data.ticks[i][0] +
+                                    '</span>, 打勾列是 <span class="badge badge-success">\n' +
+                                    data.ticks[i][1] +
+                                    '</span></h3>\n';
+                            }
+                            table += '<div style="margin-top: 5px;" class="table-responsive">\n' +
+                                '            <table class="table table-hover" style="background-color: snow">\n' +
+                                '                <thead>\n' +
+                                '                <tr class="bg-light">\n';
+                            table += '<th scope="col">#</th>\n';
+                            for (var j = 1; j <= length - 1; j++) {
+                                table += '<th scope="col"><span class="badge badge-dark" style="font-size: medium">任务' + j + '</span></th>\n';
+                            }
+                            table += '</tr>\n' +
+                                '                </thead>\n' +
+                                '                <tbody>\n';
+                            for (var k = 1; k <= length - 1; k++) {
+                                table += '<tr>\n' +
+                                    '                    <th scope="row"><span class="badge badge-dark" style="font-size: medium">工人' + k + '</span></th>\n';
+                                for (var n = 1; n <= length - 1; n++) {
+                                    var value = data.dataList[i][k][n];
+                                    if (value === -1) {
+                                        value = 0;
+                                        table += '<td><span class="badge badge-pill badge-success">' + value + '</span></td>\n';
+                                    } else if (value === -2) {
+                                        value = 0;
+                                        table += '<td><span class="badge badge-pill badge-danger">' + value + '</span></td>\n';
+                                    } else {
+                                        table += '<td><span class="badge badge-pill badge-light">' + value + '</span></td>\n';
+                                    }
+                                }
+                                table += '</tr>\n';
+                            }
+                            table += '</tbody>\n' +
+                                '            </table>\n' +
+                                '        </div>\n';
+                            table += '<hr>\n';
+                            tables += table;
+                        }
+                        text += tables;
+                        text += '</div>\n';
+                        text += '<div class="alert alert-info" role="alert">Finish! The answer is ' + data.answer + '! </div>\n'
+                        text += '<hr style="background-color: #fff;border-top: 2px dashed #8c8b8b;">';
+                    } else {
+                        text+='<div>\n'
+                        text += '<div class="alert alert-danger" role="alert">\n' +
+                            '  Oops! Something went wrong! Please <a href="javascript:location.reload();" class="alert-link">refresh</a> and try again!\n' +
+                            '</div>\n';
+                        text += '</div>\n';
+                    }
+                    text += '</div>\n';
+                    $('#' + id).after(text);
+                },
+                error: function () {
+                    alert("error!");
+                },
+                dataType: "json"
+            });
+        }
+    </script>
+    <style>
+        .location {
+            position: fixed;
+            right: 0;
+            bottom: 66px;
+            width: 20px;
+            background: #FFC;
+            padding: 5px;
+            cursor: pointer;
+            color: #003;
+            border-radius: 10%;
+        }
+
+        html {
+            height: 100%
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: url("image/b1.jpg") center fixed;
+        }
+
+        nav {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: 0;
+        }
+
+        .container-fluid {
+            flex-grow: 1;
+            flex-shrink: 0;
+            flex-basis: auto;
+        }
+
+        footer {
+            flex-grow: 0;
+            flex-shrink: 0;
+            flex-basis: auto;
+            text-align: center
+        }
+    </style>
+</head>
+<body>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item" aria-current="page"><a href="start.html">Start</a></li>
+        <li class="breadcrumb-item active" aria-current="page">DesignateProblem</li>
+    </ol>
+</nav>
+<div class="container-fluid" id="main">
+    <div style="text-align: center;">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            输入分配数量
+        </button>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">指派问题</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="messageBox">
+                        <form class="form-group" style="text-align: center">
+                            <div class="form-group mb-2">
+                                <label for="number" class="sr-only">Number: </label>
+                                <input type="number" class="form-control" id="number" placeholder="请输入分组数">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close">关闭</button>
+                        <button type="button" class="btn btn-primary" onclick="createTable($('#number').val())">确定
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-hide">
+        <p class="scroll_top">上去</p>
+        <p class="scroll_bottom">下去</p>
+    </div>
+</div>
+</body>
+<footer style="background-color: #424040;">
+    <div class="copy-right" style="width: 100%;color: #d9d9d9">
+        Copyright &copy 2020 还没想好叫啥名字(≥◇≤). All rights reserved
+        <a style="color: #7A7A7D;" href="https://beian.miit.gov.cn/#/Integrated/recordQuery" target="_blank"> <img
+                style="width:18px;vertical-align: text-bottom;margin-left: 8px;" src="image/index.png"
+                alt=""> 京ICP备2020040249号 </a>
+    </div>
+</footer>
+</html>
